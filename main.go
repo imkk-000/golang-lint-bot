@@ -32,6 +32,8 @@ func (g *gateway) newClient() {
 }
 
 func (g gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Method: %s, Path: %s\n", r.Method, r.URL.Path)
+
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -48,6 +50,8 @@ func (g gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for _, event := range events {
+			log.Printf("EventType: %s, EventToken: %s", event.Type, event.ReplyToken)
+
 			if event.Type == linebot.EventTypeMessage {
 				if _, err = g.botClient.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(time.Now().String())).Do(); err != nil {
 					log.Print(err)

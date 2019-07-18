@@ -55,11 +55,13 @@ func (g gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if e.Type == linebot.EventTypeMessage {
 				if e.ReplyToken == "00000000000000000000000000000000" ||
 					e.ReplyToken == "ffffffffffffffffffffffffffffffff" {
+					w.WriteHeader(http.StatusOK)
 					return
 				}
 				if _, err = g.botClient.ReplyMessage(e.ReplyToken, linebot.NewTextMessage(time.Now().String())).Do(); err != nil {
 					log.Print(err)
 				}
+				w.WriteHeader(http.StatusOK)
 			}
 		}
 		return

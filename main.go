@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
+	"strings"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 )
@@ -55,13 +55,26 @@ func (g gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if e.Type == linebot.EventTypeMessage {
 				if e.ReplyToken == "00000000000000000000000000000000" ||
 					e.ReplyToken == "ffffffffffffffffffffffffffffffff" {
-					w.WriteHeader(http.StatusOK)
 					return
 				}
-				if _, err = g.botClient.ReplyMessage(e.ReplyToken, linebot.NewTextMessage(time.Now().String())).Do(); err != nil {
-					log.Print(err)
+				switch message := e.Message.(type) {
+				case *linebot.TextMessage:
+					sendingMessage := "I do not understand your conversation."
+					switch message.Text {
+					case "What should I do now?":
+						sendingMessage = strings.Join(
+							[]string{
+								"Reading a book",
+								"Watch a movie",
+								"Eat a food",
+								"Drink some water",
+							}, "\n")
+					}
+					if _, err = g.botClient.ReplyMessage(e.ReplyToken,
+						linebot.NewTextMessage(sendingMessage)).Do(); err != nil {
+						log.Print(err)
+					}
 				}
-				w.WriteHeader(http.StatusOK)
 			}
 		}
 		return

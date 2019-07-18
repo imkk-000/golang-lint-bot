@@ -49,11 +49,15 @@ func (g gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
-		for _, event := range events {
-			log.Printf("EventType: %s, EventToken: %s", event.Type, event.ReplyToken)
+		for _, e := range events {
+			log.Printf("EventType: %s, EventToken: %s", e.Type, e.ReplyToken)
 
-			if event.Type == linebot.EventTypeMessage {
-				if _, err = g.botClient.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(time.Now().String())).Do(); err != nil {
+			if e.Type == linebot.EventTypeMessage {
+				if e.ReplyToken == "00000000000000000000000000000000" ||
+					e.ReplyToken == "ffffffffffffffffffffffffffffffff" {
+					return
+				}
+				if _, err = g.botClient.ReplyMessage(e.ReplyToken, linebot.NewTextMessage(time.Now().String())).Do(); err != nil {
 					log.Print(err)
 				}
 			}
